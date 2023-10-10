@@ -1,45 +1,35 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm 
 from dotenv import load_dotenv
-import os
-import requests
+from .adapters import AbstractLLM
+from .middleware import SensitiveInfoCheck
+from .utils import Cache
+from .routers import text_analysis, text_generation
+
+app = FastAPI()
+app.include_router(text_analysis.router, prefix="/text")
+app.include_router(text_generation.router, prefix="/text")
 
 # Load environment variables
 load_dotenv()
 
-app = FastAPI()
+cache = Cache()
+
+# Connect to our Redis Cache
+@app.on_event("startup")
+async def startup():
+    cache.connect()
+
+@app.middleware("http")
+async def sensitive_info_middleware(request, call_next):
+    # Instantiate the middleware class
+    sensitive_info_check = SensitiveInfoCheck()
+    # Process the request and response
+    response = await sensitive_info_check.process(request, call_next) # return error if sensitive data found
+    return response
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 # OAuth2 token endpoint (dummy implementation)
 @app.post("/token")
 async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": form_data.username + "_token", "token_type": "bearer"}
-
-# Endpoint to interact with OpenAI GPT-3
-@app.post("/generate-text")
-async def generate_text(prompt: str, token: str = Depends(oauth2_scheme)):
-    # Get the OpenAI API key from environment variables
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-
-    # Check if the OpenAI API key is set
-    if openai_api_key is None:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="OpenAI API Key not set")
-
-    headers = {
-        "Authorization": f"Bearer {openai_api_key}",
-        "Content-Type": "application/json"
-    }
-    
-    data = {
-        "prompt": prompt,
-        "max_tokens": 150
-    }
-    
-    response = requests.post("https://api.openai.com/v1/engines/davinci/completions", headers=headers, json=data)
-    
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail=response.text)
-    
-    return response.json()

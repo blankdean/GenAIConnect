@@ -1,4 +1,4 @@
-# ModelConnect
+# GenAIConnect
 
 ## Overview
 This project is designed to build a robust, scalable, and secure API that acts as an intermediary between users and various Large Language Models (LLMs) and Foundation Models (FMs). The API is hosted on AWS, utilizing several AWS services for optimal performance, scalability, and monitoring.
@@ -56,7 +56,7 @@ The API interfaces with various LLMs and FMs through adapter layers, ensuring mo
 
 ## Directory Structure
 
-- `ModelConnect/`: The root directory of your project, where all the files and sub-directories reside.
+- `GenAIConnect/`: The root directory of your project, where all the files and sub-directories reside.
 - `.env`: A file to securely store and manage environment variables such as API keys.
 - `.gitignore`: Specifies the files and directories that should be ignored by Git, preventing sensitive or unnecessary files from being versioned.
 - `requirements.txt`: Lists all the Python dependencies required to run the project.

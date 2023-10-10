@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm 
 from dotenv import load_dotenv
 import os
 import requests
@@ -43,6 +43,3 @@ async def generate_text(prompt: str, token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=response.status_code, detail=response.text)
     
     return response.json()
-
-# Placeholder for other endpoints
-# ...

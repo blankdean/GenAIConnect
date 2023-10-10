@@ -11,9 +11,6 @@ env/
 # IDEs / Editors
 .vscode/
 
-# Python dependency information
-requirements.txt
-
 # Operating System
 .DS_Store
 Thumbs.db
